@@ -106,8 +106,15 @@
 
     <aside class="hud">
       <span id="memeCredit">LOADING CORPORATE CONTENT…</span>
-      <span id="beepStatus">AUDIO: STANDBY</span>
+      <div class="hud-audio">
+        <button type="button" class="bgm-toggle" id="bgmToggle" aria-pressed="false" title="Play / mute soundtrack">
+          ▶ PLAY MUSIC
+        </button>
+        <span id="beepStatus">AUDIO: TAP PLAY MUSIC</span>
+      </div>
     </aside>
+
+    <div id="ytBgmHost" class="yt-bgm-host" aria-hidden="true"></div>
 
     <div class="elim-overlay" id="elimOverlay" hidden aria-live="assertive">
       <div class="elim-card">

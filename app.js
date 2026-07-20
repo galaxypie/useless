@@ -129,6 +129,8 @@
     memeB: document.getElementById("memeB"),
     memeCredit: document.getElementById("memeCredit"),
     beepStatus: document.getElementById("beepStatus"),
+    bgmToggle: document.getElementById("bgmToggle"),
+    ytBgmHost: document.getElementById("ytBgmHost"),
     vhsBar: document.getElementById("vhsBar"),
     chromatic: document.getElementById("chromatic"),
     memeGlitchSlice: document.getElementById("memeGlitchSlice"),
@@ -181,12 +183,17 @@
     "▼ HR flagged this",
   ];
 
+  const BGM_YT_ID = "IIuZRWr3ODw"; // Moonbaby — Here We Go
+
   let seconds = randomInt(12, 97);
   let gameOver = false;
   let activeMeme = "A";
   let audioCtx = null;
   let memeQueue = [];
   let fleeCooldown = 0;
+  let bgmStarted = false;
+  let bgmMuted = false;
+  let bgmIframe = null;
   let buttonHiddenUntil = 0;
   let btnScale = 1;
   let btnRotation = 0;
@@ -287,7 +294,98 @@
     return audioCtx;
   }
 
+  function setAudioStatus(label) {
+    if (!els.beepStatus) return;
+    // Don't let SFX status spam overwrite the soundtrack label.
+    if (bgmIsAudible() && !label.includes("HERE WE GO") && !label.includes("MUTED")) {
+      return;
+    }
+    els.beepStatus.textContent = label;
+  }
+
+  function restoreAudioStatus() {
+    if (bgmIsAudible()) {
+      setAudioStatus("AUDIO: HERE WE GO — MOONBABY (BEEPS OFF)");
+    } else if (bgmStarted && bgmMuted) {
+      setAudioStatus("AUDIO: MUTED (BEEPS BACK ON)");
+    } else if (!bgmStarted) {
+      setAudioStatus("AUDIO: TAP PLAY MUSIC");
+    } else {
+      setAudioStatus("AUDIO: STANDBY");
+    }
+  }
+
+  function syncBgmToggle() {
+    if (!els.bgmToggle) return;
+    if (!bgmStarted) {
+      els.bgmToggle.setAttribute("aria-pressed", "false");
+      els.bgmToggle.textContent = "▶ PLAY MUSIC";
+      return;
+    }
+    els.bgmToggle.setAttribute("aria-pressed", bgmMuted ? "true" : "false");
+    els.bgmToggle.textContent = bgmMuted ? "♪ UNMUTE" : "♪ MUTE";
+  }
+
+  function bgmIsAudible() {
+    return bgmStarted && !bgmMuted;
+  }
+
+  function mountBgmIframe({ muted }) {
+    if (!els.ytBgmHost) return null;
+    els.ytBgmHost.innerHTML = "";
+    const iframe = document.createElement("iframe");
+    iframe.title = "Moonbaby — Here We Go";
+    iframe.allow =
+      "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+    iframe.referrerPolicy = "strict-origin-when-cross-origin";
+    iframe.allowFullscreen = true;
+    // autoplay=1 with mute=0 must be created inside a user gesture to get sound
+    const params = new URLSearchParams({
+      autoplay: "1",
+      mute: muted ? "1" : "0",
+      controls: "1",
+      rel: "0",
+      modestbranding: "1",
+      playsinline: "1",
+      loop: "1",
+      playlist: BGM_YT_ID,
+    });
+    iframe.src = `https://www.youtube.com/embed/${BGM_YT_ID}?${params.toString()}`;
+    els.ytBgmHost.appendChild(iframe);
+    els.ytBgmHost.classList.add("is-on");
+    els.ytBgmHost.setAttribute("aria-hidden", "false");
+    bgmIframe = iframe;
+    return iframe;
+  }
+
+  function startBgm() {
+    // Create the embed during this click so unmuted autoplay is allowed.
+    mountBgmIframe({ muted: false });
+    bgmStarted = true;
+    bgmMuted = false;
+    syncBgmToggle();
+    setAudioStatus("AUDIO: HERE WE GO — MOONBABY (BEEPS OFF)");
+  }
+
+  function toggleBgmMute() {
+    if (!bgmStarted) {
+      startBgm();
+      return;
+    }
+    bgmMuted = !bgmMuted;
+    // Remount with mute flag — YouTube iframe API volume is unreliable without the API.
+    mountBgmIframe({ muted: bgmMuted });
+    syncBgmToggle();
+    setAudioStatus(
+      bgmMuted
+        ? "AUDIO: MUTED (BEEPS BACK ON)"
+        : "AUDIO: HERE WE GO — MOONBABY (BEEPS OFF)"
+    );
+  }
+
   function beep(freq = 880, duration = 0.09, type = "square", gain = 0.08) {
+    // Soundtrack owns the speakers — skip random SFX while music is audible.
+    if (bgmIsAudible()) return;
     const ctx = ensureAudio();
     if (!ctx) return;
     const osc = ctx.createOscillator();
@@ -430,8 +528,9 @@
   }
 
   function playDistractingCountdown() {
+    if (bgmIsAudible()) return;
     const steps = randomInt(3, 6);
-    els.beepStatus.textContent = "AUDIO: DISTRACTING COUNTDOWN";
+    setAudioStatus("AUDIO: DISTRACTING COUNTDOWN");
     els.timer.classList.add("panic");
 
     for (let i = 0; i < steps; i++) {
@@ -449,7 +548,7 @@
     setTimeout(() => {
       if (!gameOver) {
         els.timer.classList.remove("panic");
-        els.beepStatus.textContent = "AUDIO: STANDBY";
+        restoreAudioStatus();
       }
     }, steps * 450 + 400);
   }
@@ -803,7 +902,7 @@
     els.elimTitle.textContent = pick(ELIM_LINES);
     els.elimTitle.setAttribute("data-text", els.elimTitle.textContent);
     els.elimOverlay.hidden = false;
-    els.beepStatus.textContent = "AUDIO: ELIMINATION JINGLE";
+    setAudioStatus("AUDIO: ELIMINATION JINGLE");
     glitchBurst();
     for (let i = 0; i < 4; i++) {
       setTimeout(() => beep(90 + i * 35, 0.14, "sawtooth", 0.08), i * 90);
@@ -812,7 +911,7 @@
     setTimeout(() => {
       els.elimOverlay.hidden = true;
       elimActive = false;
-      els.beepStatus.textContent = "AUDIO: STANDBY";
+      restoreAudioStatus();
     }, randomInt(2000, 5000));
   }
 
@@ -823,7 +922,7 @@
     els.aiStatus.textContent = pick(AI_STATUS_LINES);
     els.aiMeterFill.style.width = "0%";
     els.aiOverlay.hidden = false;
-    els.beepStatus.textContent = "AUDIO: AI SCAN";
+    setAudioStatus("AUDIO: AI SCAN");
 
     let progress = 0;
     const ticks = randomInt(8, 14);
@@ -855,7 +954,7 @@
       setTimeout(() => {
         els.aiOverlay.hidden = true;
         aiActive = false;
-        els.beepStatus.textContent = "AUDIO: STANDBY";
+        restoreAudioStatus();
       }, randomInt(700, 1400));
     }, ticks * stepMs);
   }
@@ -945,7 +1044,7 @@
     if (els.elimOverlay) els.elimOverlay.hidden = true;
     if (els.aiOverlay) els.aiOverlay.hidden = true;
     els.loseCopy.textContent = pick(LOSE_LINES);
-    els.beepStatus.textContent = "AUDIO: DEFEAT JINGLE";
+    setAudioStatus("AUDIO: DEFEAT JINGLE");
     els.instruction.textContent = "You clicked. The void blinked back.";
     els.buzzword.textContent = "Culture score critically under-sparkled.";
     if (els.loseCulture) els.loseCulture.textContent = `−${randomInt(18, 99)}`;
@@ -980,7 +1079,7 @@
     applyButtonTransform();
     els.instruction.textContent = "Stare. Do not click. Clicking is surrender.";
     els.timerSub.textContent = "RECALIBRATING CHAOS…";
-    els.beepStatus.textContent = "AUDIO: STANDBY";
+    restoreAudioStatus();
     els.timer.classList.remove("panic");
     els.buzzword.textContent = pick(BUZZWORDS);
     updateTimerDisplay();
@@ -1110,6 +1209,15 @@
     },
     { once: true }
   );
+
+  if (els.bgmToggle) {
+    els.bgmToggle.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      ensureAudio();
+      toggleBgmMute();
+    });
+  }
 
   els.restartBtn.addEventListener("click", restart);
   window.addEventListener("resize", () => {

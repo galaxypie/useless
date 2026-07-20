@@ -30,7 +30,7 @@ body {
   background: var(--ink);
   color: var(--champagne);
   font-family: var(--font-body);
-  cursor: crosshair;
+  cursor: url("./assets/lollipop-cursor.png") 65 124, auto;
   user-select: none;
 }
 
@@ -624,7 +624,7 @@ body {
   font-weight: 800;
   font-size: clamp(0.85rem, 2vw, 1rem);
   letter-spacing: 0.04em;
-  cursor: pointer;
+  cursor: url("./assets/lollipop-cursor.png") 65 124, pointer;
   box-shadow:
     4px 4px 0 var(--rose),
     -2px 0 0 var(--cyan),
@@ -842,6 +842,66 @@ body {
   white-space: nowrap;
 }
 
+.hud-audio {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  max-width: 48%;
+  pointer-events: auto;
+}
+
+.hud-audio #beepStatus {
+  max-width: none;
+}
+
+.bgm-toggle {
+  appearance: none;
+  border: 1px solid rgba(94, 240, 255, 0.45);
+  background: rgba(0, 0, 0, 0.45);
+  color: var(--cyan);
+  font: inherit;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  padding: 0.28rem 0.55rem;
+  cursor: url("./assets/lollipop-cursor.png") 65 124, pointer;
+  text-shadow: 0 0 8px rgba(94, 240, 255, 0.55);
+}
+
+.bgm-toggle[aria-pressed="true"] {
+  color: #ff6b9d;
+  border-color: rgba(255, 107, 157, 0.55);
+}
+
+.yt-bgm-host {
+  position: fixed;
+  right: 0.75rem;
+  bottom: 2.6rem;
+  width: 180px;
+  height: 101px;
+  z-index: 14;
+  border: 1px solid rgba(94, 240, 255, 0.35);
+  background: #000;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.55);
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(8px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.yt-bgm-host.is-on {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.yt-bgm-host iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
 .status-ticker {
   position: fixed;
   z-index: 11;
@@ -957,7 +1017,7 @@ body {
   font-weight: 800;
   font-size: 0.85rem;
   padding: 0.85rem 1.4rem;
-  cursor: pointer;
+  cursor: url("./assets/lollipop-cursor.png") 65 124, pointer;
   box-shadow: 3px 3px 0 var(--rose);
   letter-spacing: 0.02em;
 }
@@ -1245,6 +1305,18 @@ body {
 
   .hud span {
     max-width: 100%;
+  }
+
+  .hud-audio {
+    max-width: 100%;
+  }
+
+  .yt-bgm-host {
+    right: 0.5rem;
+    bottom: 3.4rem;
+    width: min(160px, 42vw);
+    height: auto;
+    aspect-ratio: 16 / 9;
   }
 
   .surrender {
