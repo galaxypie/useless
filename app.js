@@ -157,6 +157,9 @@
     kpiAlignmentDelta: document.getElementById("kpiAlignmentDelta"),
     loseCulture: document.getElementById("loseCulture"),
     loseVibes: document.getElementById("loseVibes"),
+    introOverlay: document.getElementById("introOverlay"),
+    introStartBtn: document.getElementById("introStartBtn"),
+    introCopy: document.getElementById("introCopy"),
     confidencePct: document.getElementById("confidencePct"),
     confidenceFill: document.getElementById("confidenceFill"),
     confidenceMsg: document.getElementById("confidenceMsg"),
@@ -183,10 +186,11 @@
     "▼ HR flagged this",
   ];
 
-  const BGM_YT_ID = "IIuZRWr3ODw"; // Moonbaby — Here We Go
+  const BGM_YT_ID = "7-h8CEZPvBM"; // Here We Go soundtrack
 
   let seconds = randomInt(12, 97);
   let gameOver = false;
+  let gameStarted = false;
   let activeMeme = "A";
   let audioCtx = null;
   let memeQueue = [];
@@ -224,7 +228,7 @@
   }
 
   function tickNonsenseKpis() {
-    if (gameOver) return;
+    if (!gameStarted || gameOver) return;
 
     // Focus KPI — percent of nothing
     els.kpiFocus.textContent = `${randomInt(-40, 420)}%`;
@@ -297,7 +301,7 @@
   function setAudioStatus(label) {
     if (!els.beepStatus) return;
     // Don't let SFX status spam overwrite the soundtrack label.
-    if (bgmIsAudible() && !label.includes("HERE WE GO") && !label.includes("MUTED")) {
+    if (bgmIsAudible() && !label.includes("HERE WE GO") && !label.includes("MUTED") && !label.includes("TOTALLY SPIES")) {
       return;
     }
     els.beepStatus.textContent = label;
@@ -305,7 +309,7 @@
 
   function restoreAudioStatus() {
     if (bgmIsAudible()) {
-      setAudioStatus("AUDIO: HERE WE GO — MOONBABY (BEEPS OFF)");
+      setAudioStatus("AUDIO: HERE WE GO — TOTALLY SPIES (BEEPS OFF)");
     } else if (bgmStarted && bgmMuted) {
       setAudioStatus("AUDIO: MUTED (BEEPS BACK ON)");
     } else if (!bgmStarted) {
@@ -334,7 +338,7 @@
     if (!els.ytBgmHost) return null;
     els.ytBgmHost.innerHTML = "";
     const iframe = document.createElement("iframe");
-    iframe.title = "Moonbaby — Here We Go";
+    iframe.title = "Totally Spies — Here We Go intros";
     iframe.allow =
       "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
     iframe.referrerPolicy = "strict-origin-when-cross-origin";
@@ -364,7 +368,7 @@
     bgmStarted = true;
     bgmMuted = false;
     syncBgmToggle();
-    setAudioStatus("AUDIO: HERE WE GO — MOONBABY (BEEPS OFF)");
+    setAudioStatus("AUDIO: HERE WE GO — TOTALLY SPIES (BEEPS OFF)");
   }
 
   function toggleBgmMute() {
@@ -379,7 +383,7 @@
     setAudioStatus(
       bgmMuted
         ? "AUDIO: MUTED (BEEPS BACK ON)"
-        : "AUDIO: HERE WE GO — MOONBABY (BEEPS OFF)"
+        : "AUDIO: HERE WE GO — TOTALLY SPIES (BEEPS OFF)"
     );
   }
 
@@ -603,7 +607,7 @@
   }
 
   function tickTimer() {
-    if (gameOver) return;
+    if (!gameStarted || gameOver) return;
 
     const roll = Math.random();
     let direction;
@@ -747,7 +751,7 @@
   }
 
   function fleeFromPointer(clientX, clientY, btn = els.surrenderBtn) {
-    if (gameOver || elimActive || aiActive) return;
+    if (!gameStarted || gameOver || elimActive || aiActive) return;
     if (performance.now() < buttonHiddenUntil) return;
 
     const now = performance.now();
@@ -1017,7 +1021,7 @@
   }
 
   function tickConfidence() {
-    if (gameOver) return;
+    if (!gameStarted || gameOver) return;
 
     // Drift for no reason — sometimes leap, sometimes jitter
     const mode = Math.random();
@@ -1037,7 +1041,7 @@
   }
 
   function endGame() {
-    if (gameOver) return;
+    if (!gameStarted || gameOver) return;
     gameOver = true;
     elimActive = false;
     aiActive = false;
@@ -1063,8 +1067,24 @@
     els.loseModal.showModal();
   }
 
+  function beginGame() {
+    if (gameStarted) return;
+    gameStarted = true;
+    if (els.introOverlay) {
+      els.introOverlay.classList.add("is-done");
+      els.introOverlay.setAttribute("aria-hidden", "true");
+    }
+    ensureAudio();
+    glitchBurst();
+    beep(660, 0.08, "square", 0.06);
+    setTimeout(() => beep(990, 0.1, "triangle", 0.05), 90);
+    els.timerSub.textContent = "STARING CONTRACT: ACTIVE";
+    els.instruction.textContent = "One rule. Zero blinks. Good luck, asset.";
+  }
+
   function restart() {
     gameOver = false;
+    gameStarted = true;
     elimActive = false;
     aiActive = false;
     buttonHiddenUntil = 0;
@@ -1121,21 +1141,23 @@
 
   function scheduleMeme() {
     setTimeout(() => {
-      if (!gameOver) showNextMeme();
+      if (gameStarted && !gameOver) showNextMeme();
       scheduleMeme();
     }, randomInt(4000, 9000));
   }
 
   function scheduleGlitch() {
     setTimeout(() => {
-      if (!gameOver && !elimActive && Math.random() < 0.72) glitchBurst();
+      if (gameStarted && !gameOver && !elimActive && Math.random() < 0.72) {
+        glitchBurst();
+      }
       scheduleGlitch();
     }, randomInt(900, 2800));
   }
 
   function scheduleBuzz() {
     setTimeout(() => {
-      rotateBuzzword();
+      if (gameStarted) rotateBuzzword();
       scheduleBuzz();
     }, randomInt(2800, 5200));
   }
@@ -1149,29 +1171,29 @@
 
   function scheduleButtonChaos() {
     setTimeout(() => {
-      if (!gameOver) mutateButtonChaos();
+      if (gameStarted && !gameOver) mutateButtonChaos();
       scheduleButtonChaos();
     }, randomInt(1600, 4800));
   }
 
   function scheduleElimination() {
     setTimeout(() => {
-      if (!gameOver && Math.random() < 0.55) showElimination();
+      if (gameStarted && !gameOver && Math.random() < 0.55) showElimination();
       scheduleElimination();
     }, randomInt(9000, 22000));
   }
 
   function scheduleFakeAi() {
     setTimeout(() => {
-      if (!gameOver && Math.random() < 0.6) showFakeAiDetection();
+      if (gameStarted && !gameOver && Math.random() < 0.6) showFakeAiDetection();
       scheduleFakeAi();
     }, randomInt(12000, 28000));
   }
 
+  // Soft ambient loops can arm early; gameplay gates on gameStarted.
   scheduleTimer();
   scheduleMeme();
   scheduleGlitch();
-  tickNonsenseKpis();
   setInterval(tickNonsenseKpis, 1000);
   scheduleBuzz();
   updateConfidenceMeter(confidence);
@@ -1180,12 +1202,30 @@
   scheduleElimination();
   scheduleFakeAi();
 
+  const INTRO_LINES = [
+    "That’s it. No handbook. No FAQ. No “optional eyelid wellness webinar.” If your lashes touch, Legal considers it a resignation.",
+    "HR memo: blinking is a performance issue. Moisturize on your own time.",
+    "One rule. Infinite consequences. Your cornea is now a KPI.",
+    "Blink and you’re offline. Don’t blink and you’re… also somehow offline. Try anyway.",
+  ];
+  if (els.introCopy) {
+    els.introCopy.textContent = pick(INTRO_LINES);
+  }
+
+  if (els.introStartBtn) {
+    els.introStartBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      beginGame();
+    });
+  }
+
   els.surrenderBtn.addEventListener("mouseenter", (e) => {
     fleeFromPointer(e.clientX, e.clientY);
   });
   els.surrenderBtn.addEventListener("pointerdown", (e) => {
     e.preventDefault();
     e.stopPropagation();
+    if (!gameStarted) return;
     if (Math.random() < 0.92) {
       fleeFromPointer(e.clientX, e.clientY);
       if (Math.random() < 0.35) mutateButtonChaos();
@@ -1196,6 +1236,7 @@
   els.surrenderBtn.addEventListener("click", (e) => {
     e.preventDefault();
     e.stopPropagation();
+    if (!gameStarted) return;
     const rect = els.surrenderBtn.getBoundingClientRect();
     fleeFromPointer(rect.left + rect.width / 2, rect.top + rect.height / 2);
   });

@@ -927,6 +927,127 @@ body {
   animation: ticker-blast 0.9s steps(5) forwards;
 }
 
+/* —— Intro / one-rule briefing —— */
+.intro-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: 1.25rem;
+  background:
+    radial-gradient(ellipse 60% 50% at 50% 40%, rgba(255, 107, 157, 0.18), transparent 70%),
+    rgba(5, 2, 10, 0.82);
+  backdrop-filter: contrast(1.1) saturate(1.15);
+  transition: opacity 0.35s ease, visibility 0.35s ease;
+}
+
+.intro-overlay.is-done {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.intro-card {
+  width: min(92vw, 28rem);
+  text-align: center;
+  padding: 0.5rem;
+}
+
+.intro-kicker {
+  margin: 0 0 0.75rem;
+  font-family: var(--font-tech);
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  text-shadow: 0 0 10px var(--glow-cyan);
+}
+
+.intro-title {
+  position: relative;
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(1.4rem, 6vw, 2rem);
+  color: var(--champagne);
+  letter-spacing: 0.06em;
+  text-shadow:
+    2px 0 0 var(--cyan),
+    -2px 0 0 var(--rose);
+}
+
+.intro-rule {
+  position: relative;
+  margin: 0.85rem 0 1rem;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(2rem, 10vw, 3.2rem);
+  line-height: 1.05;
+  color: var(--rose);
+  text-shadow:
+    3px 0 0 var(--gold),
+    -2px 0 0 var(--cyan),
+    0 0 24px var(--glow-rose);
+  animation: intro-rule-pulse 1.4s steps(2) infinite;
+}
+
+.intro-copy {
+  margin: 0 auto 0.85rem;
+  max-width: 26rem;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  color: #fff;
+  text-shadow: 0 1px 10px #000;
+}
+
+.intro-fine {
+  margin: 0 auto 1.4rem;
+  max-width: 24rem;
+  font-size: 0.72rem;
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+  color: rgba(247, 231, 206, 0.7);
+  text-shadow: 0 1px 6px #000;
+}
+
+.intro-start {
+  border: 2px solid var(--cyan);
+  border-radius: 0;
+  background: rgba(5, 2, 10, 0.65);
+  color: var(--cyan);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 0.82rem;
+  padding: 0.9rem 1.35rem;
+  letter-spacing: 0.03em;
+  cursor: url("./assets/lollipop-cursor.png") 65 124, pointer;
+  box-shadow: 3px 3px 0 var(--rose);
+  transition: transform 0.12s steps(2), box-shadow 0.12s steps(2);
+}
+
+.intro-start:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0 var(--rose);
+}
+
+.intro-start:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--rose);
+}
+
+@keyframes intro-rule-pulse {
+  0%,
+  100% {
+    filter: none;
+    transform: none;
+  }
+  50% {
+    filter: hue-rotate(25deg) contrast(1.2);
+    transform: skewX(-1.5deg);
+  }
+}
+
 /* —— Lose modal —— */
 .lose-modal {
   border: none;
