@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EYEBALL™ // Synergy Stare OS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Outfit:wght@400;600;700&family=Syne:wght@700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="meme-layer" id="memeLayer" aria-hidden="true">
+      <img id="memeA" class="meme-img active" alt="" referrerpolicy="no-referrer" />
+      <img id="memeB" class="meme-img" alt="" referrerpolicy="no-referrer" />
+      <div class="meme-tint"></div>
+      <div class="meme-glitch-slice" id="memeGlitchSlice" aria-hidden="true"></div>
+    </div>
+
+    <div class="aurora" aria-hidden="true"></div>
+    <div class="sparkle-field" id="sparkleField" aria-hidden="true"></div>
+    <div class="noise" aria-hidden="true"></div>
+    <div class="scanlines" aria-hidden="true"></div>
+    <div class="vhs-bar" id="vhsBar" aria-hidden="true"></div>
+    <div class="chromatic" id="chromatic" aria-hidden="true"></div>
+
+    <header class="brand-bar">
+      <div class="brand-row">
+        <p class="brand glitch-text" data-text="EYEBALL™">EYEBALL™</p>
+        <span class="live-pill"><i></i> LIVE SYNERGY</span>
+      </div>
+      <p class="tagline">Operationalize attention. Monetize the void. Blink less, deliver more.</p>
+    </header>
+
+    <section class="kpi-rail" aria-label="Meaningless KPIs">
+      <article class="kpi-card">
+        <p class="kpi-label">Focus KPI</p>
+        <p class="kpi-value" id="kpiFocus">—</p>
+        <p class="kpi-delta" id="kpiFocusDelta">calibrating…</p>
+      </article>
+      <article class="kpi-card">
+        <p class="kpi-label">Vision Throughput</p>
+        <p class="kpi-value" id="kpiVision">—</p>
+        <p class="kpi-delta" id="kpiVisionDelta">calibrating…</p>
+      </article>
+      <article class="kpi-card">
+        <p class="kpi-label">Blink Velocity</p>
+        <p class="kpi-value" id="kpiBlinkVel">—</p>
+        <p class="kpi-delta" id="kpiBlinkVelDelta">calibrating…</p>
+      </article>
+      <article class="kpi-card">
+        <p class="kpi-label">Moisture Index</p>
+        <p class="kpi-value" id="kpiMoisture">—</p>
+        <p class="kpi-delta" id="kpiMoistureDelta">calibrating…</p>
+      </article>
+      <article class="kpi-card">
+        <p class="kpi-label">Executive Eye Contact</p>
+        <p class="kpi-value" id="kpiEyeContact">—</p>
+        <p class="kpi-delta" id="kpiEyeContactDelta">calibrating…</p>
+      </article>
+      <article class="kpi-card">
+        <p class="kpi-label">Corporate Alignment Score</p>
+        <p class="kpi-value" id="kpiAlignment">—</p>
+        <p class="kpi-delta" id="kpiAlignmentDelta">calibrating…</p>
+      </article>
+    </section>
+
+    <main class="stage">
+      <div class="stage-grid">
+        <section class="timer-block">
+          <p class="timer-label">ATTENTION RUNWAY</p>
+          <p class="timer glitch-text" id="timer" data-text="00:00:00">00:00:00</p>
+          <p class="timer-sub" id="timerSub">CALIBRATING CHAOS…</p>
+          <p class="instruction" id="instruction">
+            Stare. Do not click. Clicking is surrender.
+          </p>
+        </section>
+
+        <section class="confidence-panel" aria-live="polite">
+          <div class="confidence-head">
+            <p class="confidence-title">Blink Detection AI</p>
+            <p class="confidence-badge" id="confidenceBadge">UNSURE</p>
+          </div>
+          <div class="confidence-readout">
+            <span class="confidence-pct" id="confidencePct">47%</span>
+            <span class="confidence-sub" id="confidenceSub">guessing aggressively</span>
+          </div>
+          <div class="confidence-meter" aria-hidden="true">
+            <div class="confidence-fill" id="confidenceFill"></div>
+          </div>
+          <p class="confidence-msg" id="confidenceMsg">Awaiting ocular nonsense…</p>
+        </section>
+      </div>
+
+      <p class="buzzword" id="buzzword">Unlocking paradigm-shifting eyeball equity…</p>
+
+      <button type="button" class="surrender" id="surrenderBtn">
+        I Blinked
+      </button>
+    </main>
+
+    <div class="status-ticker" id="ticker" aria-hidden="true"></div>
+
+    <aside class="hud">
+      <span id="memeCredit">LOADING CORPORATE CONTENT…</span>
+      <span id="beepStatus">AUDIO: STANDBY</span>
+    </aside>
+
+    <div class="elim-overlay" id="elimOverlay" hidden aria-live="assertive">
+      <div class="elim-card">
+        <p class="elim-kicker">SYSTEM NOTICE</p>
+        <p class="elim-title glitch-text" id="elimTitle" data-text="You have been eliminated.">You have been eliminated.</p>
+      </div>
+    </div>
+
+    <div class="ai-overlay" id="aiOverlay" hidden aria-live="polite">
+      <div class="ai-card">
+        <p class="ai-kicker">FAKE AI DETECTION™</p>
+        <p class="ai-title" id="aiTitle">Scanning eyelid velocity…</p>
+        <div class="ai-meter" aria-hidden="true">
+          <div class="ai-meter-fill" id="aiMeterFill"></div>
+        </div>
+        <p class="ai-status" id="aiStatus">Confidence: 0.0%</p>
+      </div>
+    </div>
+
+    <dialog class="lose-modal" id="loseModal">
+      <div class="lose-card">
+        <h2 class="lose-title glitch-text" data-text="YOU BLINKED">YOU BLINKED</h2>
+        <p class="lose-copy" id="loseCopy">
+          The board has been notified. Synergy has decreased.
+        </p>
+        <div class="lose-kpis">
+          <div><span>Culture Score</span><strong id="loseCulture">−42</strong></div>
+          <div><span>Vibes ROI</span><strong id="loseVibes">bankrupt</strong></div>
+        </div>
+        <button type="button" class="restart" id="restartBtn">RE-ALIGN &amp; RETRY</button>
+      </div>
+    </dialog>
+
+    <script src="app.js"></script>
+  </body>
+</html>
