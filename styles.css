@@ -946,6 +946,7 @@ body {
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
+  display: none;
 }
 
 .intro-card {
@@ -1034,6 +1035,22 @@ body {
 .intro-start:active {
   transform: translate(1px, 1px);
   box-shadow: 1px 1px 0 var(--rose);
+}
+
+.intro-countdown {
+  margin: 1rem auto 0;
+  max-width: 24rem;
+  font-family: var(--font-tech);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  color: rgba(94, 240, 255, 0.85);
+  text-shadow: 0 0 10px var(--glow-cyan);
+}
+
+.intro-countdown #introCountdownNum {
+  font-weight: 800;
+  color: var(--gold);
+  text-shadow: 0 0 10px var(--glow-gold);
 }
 
 @keyframes intro-rule-pulse {

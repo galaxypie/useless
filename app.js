@@ -160,6 +160,8 @@
     introOverlay: document.getElementById("introOverlay"),
     introStartBtn: document.getElementById("introStartBtn"),
     introCopy: document.getElementById("introCopy"),
+    introCountdown: document.getElementById("introCountdown"),
+    introCountdownNum: document.getElementById("introCountdownNum"),
     confidencePct: document.getElementById("confidencePct"),
     confidenceFill: document.getElementById("confidenceFill"),
     confidenceMsg: document.getElementById("confidenceMsg"),
@@ -191,6 +193,7 @@
   let seconds = randomInt(12, 97);
   let gameOver = false;
   let gameStarted = false;
+  let introCountdownTimer = null;
   let activeMeme = "A";
   let audioCtx = null;
   let memeQueue = [];
@@ -558,6 +561,7 @@
   }
 
   function glitchBurst() {
+    if (!els.vhsBar || !els.chromatic) return;
     els.vhsBar.classList.remove("run");
     void els.vhsBar.offsetWidth;
     els.vhsBar.classList.add("run");
@@ -565,10 +569,11 @@
     setTimeout(() => els.chromatic.classList.remove("on"), 280);
 
     const img = activeMeme === "A" ? els.memeA : els.memeB;
+    if (!img) return;
     img.classList.add("glitch-flash");
     setTimeout(() => img.classList.remove("glitch-flash"), 220);
 
-    if (els.memeGlitchSlice) {
+    if (els.memeGlitchSlice && img.src) {
       const slice = els.memeGlitchSlice;
       slice.style.backgroundImage = `url("${img.src}")`;
       slice.style.backgroundSize = "cover";
@@ -579,7 +584,7 @@
     }
 
     // Extra RGB tear on the meme layer
-    if (Math.random() > 0.4) {
+    if (Math.random() > 0.4 && els.memeA && els.memeB) {
       els.memeA.style.transform = `translateX(${randomInt(-8, 8)}px)`;
       els.memeB.style.transform = `translateX(${randomInt(-8, 8)}px)`;
       setTimeout(() => {
@@ -588,7 +593,7 @@
       }, 120);
     }
 
-    if (Math.random() > 0.4) {
+    if (Math.random() > 0.4 && els.ticker) {
       els.ticker.textContent = pick(TICKER_LINES);
       els.ticker.classList.remove("show");
       void els.ticker.offsetWidth;
@@ -863,7 +868,7 @@
   }
 
   function mutateButtonChaos() {
-    if (gameOver || elimActive || aiActive) return;
+    if (!gameStarted || gameOver || elimActive || aiActive) return;
     if (performance.now() < buttonHiddenUntil) return;
 
     const roll = Math.random();
@@ -1067,19 +1072,62 @@
     els.loseModal.showModal();
   }
 
+  function stopIntroCountdown() {
+    if (introCountdownTimer) {
+      clearInterval(introCountdownTimer);
+      introCountdownTimer = null;
+    }
+  }
+
+  function startIntroCountdown(fromSeconds = 10) {
+    let remaining = fromSeconds;
+    if (els.introCountdownNum) {
+      els.introCountdownNum.textContent = String(remaining);
+    }
+    stopIntroCountdown();
+    introCountdownTimer = setInterval(() => {
+      remaining -= 1;
+      if (els.introCountdownNum) {
+        els.introCountdownNum.textContent = String(Math.max(0, remaining));
+      }
+      if (remaining <= 0) {
+        stopIntroCountdown();
+        beginGame();
+      }
+    }, 1000);
+  }
+
   function beginGame() {
     if (gameStarted) return;
     gameStarted = true;
-    if (els.introOverlay) {
-      els.introOverlay.classList.add("is-done");
-      els.introOverlay.setAttribute("aria-hidden", "true");
+    stopIntroCountdown();
+
+    try {
+      if (els.introOverlay) {
+        els.introOverlay.classList.add("is-done");
+        els.introOverlay.hidden = true;
+        els.introOverlay.setAttribute("aria-hidden", "true");
+      }
+      document.body.classList.add("is-playing");
+      ensureAudio();
+      if (els.timerSub) els.timerSub.textContent = "STARING CONTRACT: ACTIVE";
+      if (els.instruction) {
+        els.instruction.textContent = "One rule. Zero blinks. Good luck, asset.";
+      }
+      updateKpis();
+      updateTimerDisplay();
+      showNextMeme();
+      glitchBurst();
+      beep(660, 0.08, "square", 0.06);
+      setTimeout(() => beep(990, 0.1, "triangle", 0.05), 90);
+    } catch (err) {
+      console.error("beginGame failed", err);
+      // Still keep the game running even if flair throws.
+      if (els.introOverlay) {
+        els.introOverlay.hidden = true;
+        els.introOverlay.classList.add("is-done");
+      }
     }
-    ensureAudio();
-    glitchBurst();
-    beep(660, 0.08, "square", 0.06);
-    setTimeout(() => beep(990, 0.1, "triangle", 0.05), 90);
-    els.timerSub.textContent = "STARING CONTRACT: ACTIVE";
-    els.instruction.textContent = "One rule. Zero blinks. Good luck, asset.";
   }
 
   function restart() {
@@ -1215,8 +1263,14 @@
   if (els.introStartBtn) {
     els.introStartBtn.addEventListener("click", (e) => {
       e.preventDefault();
+      e.stopPropagation();
       beginGame();
     });
+    // Auto-enroll after 10s if the user doesn't click.
+    startIntroCountdown(10);
+  } else {
+    // Fail-safe: never soft-lock if the intro button is missing.
+    beginGame();
   }
 
   els.surrenderBtn.addEventListener("mouseenter", (e) => {
